@@ -69,7 +69,7 @@ export function TeamProvider({ children }) {
     const ref = await addDoc(collection(db, 'teams'), {
       name,
       adminId:   user.uid,
-      adminName: user.displayName,
+      adminName: user.displayName || profile?.displayName || 'Admin',
       createdAt: serverTimestamp(),
     })
     await updateTeamAndRole(ref.id, 'admin')
