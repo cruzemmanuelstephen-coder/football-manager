@@ -5,13 +5,15 @@ import { useAuth } from '../contexts/AuthContext'
 import { format, isPast, parseISO } from 'date-fns'
 import MatchCard from '../components/Matches/MatchCard'
 import MatchModal from '../components/Matches/MatchModal'
+import MatchStatsModal from '../components/Matches/MatchStatsModal'
 
 export default function MatchesPage() {
   const { profile } = useAuth()
   const { matches, loading, team } = useTeam()
-  const [showAdd,   setShowAdd]   = useState(false)
-  const [editMatch, setEditMatch] = useState(null)
-  const [tab,       setTab]       = useState('upcoming') // 'upcoming' | 'past'
+  const [showAdd,    setShowAdd]    = useState(false)
+  const [editMatch,  setEditMatch]  = useState(null)
+  const [statsMatch, setStatsMatch] = useState(null)
+  const [tab,        setTab]        = useState('upcoming') // 'upcoming' | 'past'
 
   if (!team) return <NoTeamMessage />
   if (loading) return <LoadingSpinner />
@@ -77,6 +79,7 @@ export default function MatchesPage() {
               key={match.id}
               match={match}
               onEdit={profile?.role === 'admin' ? () => setEditMatch(match) : null}
+              onStats={profile?.role === 'admin' ? () => setStatsMatch(match) : null}
             />
           ))}
         </div>
@@ -84,6 +87,7 @@ export default function MatchesPage() {
 
       {showAdd    && <MatchModal onClose={() => setShowAdd(false)} />}
       {editMatch  && <MatchModal match={editMatch} onClose={() => setEditMatch(null)} />}
+      {statsMatch && <MatchStatsModal match={statsMatch} onClose={() => setStatsMatch(null)} />}
     </div>
   )
 }

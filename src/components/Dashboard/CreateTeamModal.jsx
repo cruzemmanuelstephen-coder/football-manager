@@ -15,7 +15,8 @@ export default function CreateTeamModal({ onClose }) {
     try {
       await createTeam(name.trim())
       onClose()
-    } catch {
+    } catch (err) {
+      console.error('TEAM CREATION ERROR:', err)
       setError('Failed to create team. Try again.')
       setLoading(false)
     }

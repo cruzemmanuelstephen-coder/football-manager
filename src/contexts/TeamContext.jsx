@@ -12,6 +12,7 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  increment,
 } from 'firebase/firestore'
 import { db } from '../firebase/config'
 import { useAuth } from './AuthContext'
@@ -110,7 +111,7 @@ export function TeamProvider({ children }) {
     return deleteDoc(doc(db, 'teams', teamId, 'matches', matchId))
   }
 
-  // ── Attendance ───────────────────────────────────────────────
+  // ── Attendance & Stats ─────────────────────────────────────────
   async function getAttendance(matchId) {
     const snap = await getDocs(collection(db, 'teams', teamId, 'matches', matchId, 'attendance'))
     return snap.docs.map(d => ({ playerId: d.id, ...d.data() }))
@@ -124,13 +125,36 @@ export function TeamProvider({ children }) {
     )
   }
 
+  async function saveMatchStats(matchId, updates) {
+    const promises = updates.map(async (update) => {
+      const { playerId, goals, assists, deltaGoals, deltaAssists } = update
+      
+      // Update the match attendance document
+      await setDoc(
+        doc(db, 'teams', teamId, 'matches', matchId, 'attendance', playerId),
+        { goals, assists },
+        { merge: true }
+      )
+
+      // Update the player's total stats if there's a difference
+      if (deltaGoals !== 0 || deltaAssists !== 0) {
+        await updateDoc(doc(db, 'teams', teamId, 'players', playerId), {
+          goals: increment(deltaGoals),
+          assists: increment(deltaAssists)
+        })
+      }
+    })
+
+    await Promise.all(promises)
+  }
+
   return (
     <TeamContext.Provider value={{
       team, players, matches, loading,
       createTeam,
       addPlayer, updatePlayer, deletePlayer,
       addMatch, updateMatch, deleteMatch,
-      getAttendance, setAttendance,
+      getAttendance, setAttendance, saveMatchStats,
     }}>
       {children}
     </TeamContext.Provider>

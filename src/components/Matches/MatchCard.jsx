@@ -1,4 +1,4 @@
-import { Pencil, Trash2, MapPin, Clock, Home, Plane } from 'lucide-react'
+import { Pencil, Trash2, MapPin, Clock, Home, Plane, BarChart2 } from 'lucide-react'
 import { format, isPast, parseISO } from 'date-fns'
 import { useTeam } from '../../contexts/TeamContext'
 
@@ -8,7 +8,7 @@ const resultColors = {
   draw: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
 }
 
-export default function MatchCard({ match, onEdit }) {
+export default function MatchCard({ match, onEdit, onStats }) {
   const { deleteMatch } = useTeam()
   const past = isPast(parseISO(match.date))
 
@@ -55,16 +55,23 @@ export default function MatchCard({ match, onEdit }) {
       </div>
 
       {/* Actions */}
-      {onEdit && (
-        <div className="flex gap-1 shrink-0">
-          <button id={`edit-match-${match.id}`} onClick={onEdit} className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all">
-            <Pencil size={14} />
+      <div className="flex gap-1 shrink-0">
+        {onStats && (
+          <button id={`stats-match-${match.id}`} onClick={onStats} title="Player Stats" className="p-1.5 rounded-lg text-primary-400 hover:text-white hover:bg-primary-500/20 transition-all">
+            <BarChart2 size={14} />
           </button>
-          <button id={`delete-match-${match.id}`} onClick={handleDelete} className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
-            <Trash2 size={14} />
-          </button>
-        </div>
-      )}
+        )}
+        {onEdit && (
+          <>
+            <button id={`edit-match-${match.id}`} onClick={onEdit} title="Edit Match" className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all">
+              <Pencil size={14} />
+            </button>
+            <button id={`delete-match-${match.id}`} onClick={handleDelete} title="Delete Match" className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
+              <Trash2 size={14} />
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }
