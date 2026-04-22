@@ -55,14 +55,16 @@ export default function MatchCard({ match, onEdit }) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-1 shrink-0">
-        <button id={`edit-match-${match.id}`} onClick={onEdit} className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all">
-          <Pencil size={14} />
-        </button>
-        <button id={`delete-match-${match.id}`} onClick={handleDelete} className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
-          <Trash2 size={14} />
-        </button>
-      </div>
+      {onEdit && (
+        <div className="flex gap-1 shrink-0">
+          <button id={`edit-match-${match.id}`} onClick={onEdit} className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all">
+            <Pencil size={14} />
+          </button>
+          <button id={`delete-match-${match.id}`} onClick={handleDelete} className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

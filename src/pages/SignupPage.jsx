@@ -1,7 +1,11 @@
 import { Trophy } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import SignupForm from '../components/Auth/SignupForm'
 
 export default function SignupPage() {
+  const [searchParams] = useSearchParams()
+  const isInvite = !!searchParams.get('invite')
+
   return (
     <div className="min-h-screen bg-dark-900 flex items-center justify-center p-4">
       {/* Background gradient blobs */}
@@ -16,13 +20,17 @@ export default function SignupPage() {
           <div className="inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 items-center justify-center shadow-2xl shadow-primary-500/30 mb-4">
             <Trophy size={32} className="text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Create your team</h1>
-          <p className="text-dark-400 text-sm mt-1">Start managing your football team today</p>
+          <h1 className="text-2xl font-bold text-white">
+            {isInvite ? 'Join your team' : 'Create your team'}
+          </h1>
+          <p className="text-dark-400 text-sm mt-1">
+            {isInvite ? 'Sign up to view your team dashboard' : 'Start managing your football team today'}
+          </p>
         </div>
 
         {/* Form card */}
         <div className="glass p-6">
-          <SignupForm />
+          <SignupForm isInvite={isInvite} inviteTeamId={searchParams.get('invite')} />
         </div>
       </div>
     </div>

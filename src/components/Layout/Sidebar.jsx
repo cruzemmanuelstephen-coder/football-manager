@@ -19,7 +19,7 @@ const navItems = [
 ]
 
 export default function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user, profile, logout } = useAuth()
   const { team } = useTeam()
 
   return (
@@ -55,6 +55,23 @@ export default function Sidebar() {
         ))}
       </nav>
 
+      {/* Invite Button */}
+      {profile?.role === 'coach' && team && (
+        <div className="px-4 py-2">
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/signup?invite=${team.id}`;
+              navigator.clipboard.writeText(url);
+              alert('Invite link copied to clipboard!');
+            }}
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-primary-500/10 text-primary-400 hover:bg-primary-500/20 font-medium text-sm transition-colors border border-primary-500/20"
+          >
+            <Users size={16} />
+            Invite Players
+          </button>
+        </div>
+      )}
+
       {/* User footer */}
       <div className="px-3 py-4 border-t border-white/5">
         <div className="glass p-3 flex items-center gap-3">
@@ -63,7 +80,7 @@ export default function Sidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-medium truncate">{user?.displayName || 'Coach'}</p>
-            <p className="text-dark-400 text-xs truncate">{user?.email}</p>
+            <p className="text-dark-400 text-xs truncate capitalize">{profile?.role || 'Coach'}</p>
           </div>
           <button
             onClick={logout}

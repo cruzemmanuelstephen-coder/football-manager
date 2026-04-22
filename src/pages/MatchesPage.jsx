@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { PlusCircle, Calendar, Loader2, Clock, MapPin } from 'lucide-react'
 import { useTeam } from '../contexts/TeamContext'
+import { useAuth } from '../contexts/AuthContext'
 import { format, isPast, parseISO } from 'date-fns'
 import MatchCard from '../components/Matches/MatchCard'
 import MatchModal from '../components/Matches/MatchModal'
 
 export default function MatchesPage() {
+  const { profile } = useAuth()
   const { matches, loading, team } = useTeam()
   const [showAdd,   setShowAdd]   = useState(false)
   const [editMatch, setEditMatch] = useState(null)
@@ -29,11 +31,13 @@ export default function MatchesPage() {
           <h2 className="text-2xl font-bold text-white">Matches</h2>
           <p className="text-dark-400 text-sm">{upcoming.length} upcoming</p>
         </div>
-        <button id="add-match-btn" onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
-          <PlusCircle size={16} />
-          <span className="hidden sm:inline">Add Match</span>
-          <span className="sm:hidden">Add</span>
-        </button>
+        {profile?.role === 'coach' && (
+          <button id="add-match-btn" onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
+            <PlusCircle size={16} />
+            <span className="hidden sm:inline">Add Match</span>
+            <span className="sm:hidden">Add</span>
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -60,7 +64,7 @@ export default function MatchesPage() {
           <p className="text-dark-400 font-medium">
             {tab === 'upcoming' ? 'No upcoming matches' : 'No past matches'}
           </p>
-          {tab === 'upcoming' && (
+          {tab === 'upcoming' && profile?.role === 'coach' && (
             <button onClick={() => setShowAdd(true)} className="mt-4 btn-primary text-sm">
               Schedule a match
             </button>
@@ -72,7 +76,7 @@ export default function MatchesPage() {
             <MatchCard
               key={match.id}
               match={match}
-              onEdit={() => setEditMatch(match)}
+              onEdit={profile?.role === 'coach' ? () => setEditMatch(match) : null}
             />
           ))}
         </div>

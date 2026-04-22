@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { PlusCircle, Search, Users, Loader2 } from 'lucide-react'
 import { useTeam } from '../contexts/TeamContext'
+import { useAuth } from '../contexts/AuthContext'
 import PlayerCard from '../components/Players/PlayerCard'
 import PlayerModal from '../components/Players/PlayerModal'
 
 export default function PlayersPage() {
+  const { profile } = useAuth()
   const { players, loading, team } = useTeam()
   const [search,      setSearch]      = useState('')
   const [showAdd,     setShowAdd]     = useState(false)
@@ -26,15 +28,17 @@ export default function PlayersPage() {
           <h2 className="text-2xl font-bold text-white">Players</h2>
           <p className="text-dark-400 text-sm">{players.length} player{players.length !== 1 ? 's' : ''} in squad</p>
         </div>
-        <button
-          id="add-player-btn"
-          onClick={() => setShowAdd(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <PlusCircle size={16} />
-          <span className="hidden sm:inline">Add Player</span>
-          <span className="sm:hidden">Add</span>
-        </button>
+        {profile?.role === 'coach' && (
+          <button
+            id="add-player-btn"
+            onClick={() => setShowAdd(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <PlusCircle size={16} />
+            <span className="hidden sm:inline">Add Player</span>
+            <span className="sm:hidden">Add</span>
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -56,7 +60,7 @@ export default function PlayersPage() {
           <p className="text-dark-400 font-medium">
             {search ? 'No players match your search' : 'No players yet'}
           </p>
-          {!search && (
+          {!search && profile?.role === 'coach' && (
             <button onClick={() => setShowAdd(true)} className="mt-4 btn-primary text-sm">
               Add your first player
             </button>
@@ -68,7 +72,7 @@ export default function PlayersPage() {
             <PlayerCard
               key={player.id}
               player={player}
-              onEdit={() => setEditPlayer(player)}
+              onEdit={profile?.role === 'coach' ? () => setEditPlayer(player) : null}
             />
           ))}
         </div>

@@ -40,22 +40,24 @@ export default function PlayerCard({ player, onEdit }) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-1">
-          <button
-            id={`edit-player-${player.id}`}
-            onClick={onEdit}
-            className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Pencil size={14} />
-          </button>
-          <button
-            id={`delete-player-${player.id}`}
-            onClick={handleDelete}
-            className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        {onEdit && (
+          <div className="flex gap-1">
+            <button
+              id={`edit-player-${player.id}`}
+              onClick={onEdit}
+              className="p-1.5 rounded-lg text-dark-400 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <Pencil size={14} />
+            </button>
+            <button
+              id={`delete-player-${player.id}`}
+              onClick={handleDelete}
+              className="p-1.5 rounded-lg text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Stats row */}

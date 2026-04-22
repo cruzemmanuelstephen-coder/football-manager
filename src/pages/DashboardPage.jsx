@@ -16,7 +16,7 @@ import { format, isPast, parseISO, differenceInDays } from 'date-fns'
 import CreateTeamModal from '../components/Dashboard/CreateTeamModal'
 
 export default function DashboardPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { team, players, matches, loading } = useTeam()
   const [showCreate, setShowCreate] = useState(false)
 
@@ -30,6 +30,20 @@ export default function DashboardPage() {
 
   // If no team yet, show onboarding
   if (!team) {
+    if (profile?.role === 'player') {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-2xl shadow-primary-500/30 mb-6">
+            <Trophy size={40} className="text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">Welcome, {user?.displayName}!</h2>
+          <p className="text-dark-400 max-w-xs">
+            We couldn't find your team. If you just signed up, your team data might be loading. Otherwise, ask your coach for an invite link.
+          </p>
+        </div>
+      )
+    }
+
     return (
       <>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in">

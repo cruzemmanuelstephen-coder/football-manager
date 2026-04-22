@@ -8,23 +8,37 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Teams: only the coach (creator) can read/write
+    // Helper functions
+    function isTeamCoach(teamId) {
+      return get(/databases/$(database)/documents/teams/$(teamId)).data.coachId == request.auth.uid;
+    }
+    
+    function isTeamMember(teamId) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teamId == teamId;
+    }
+
+    // Teams
     match /teams/{teamId} {
-      allow read, write: if request.auth != null && resource.data.coachId == request.auth.uid;
+      allow read: if request.auth != null && (resource.data.coachId == request.auth.uid || isTeamMember(teamId));
+      allow write: if request.auth != null && resource.data.coachId == request.auth.uid;
       allow create: if request.auth != null;
 
       // Players sub-collection
       match /players/{playerId} {
-        allow read, write: if request.auth != null && get(/databases/$(database)/documents/teams/$(teamId)).data.coachId == request.auth.uid;
+        allow read: if request.auth != null && (isTeamCoach(teamId) || isTeamMember(teamId));
+        allow write: if request.auth != null && isTeamCoach(teamId);
       }
 
       // Matches sub-collection
       match /matches/{matchId} {
-        allow read, write: if request.auth != null && get(/databases/$(database)/documents/teams/$(teamId)).data.coachId == request.auth.uid;
+        allow read: if request.auth != null && (isTeamCoach(teamId) || isTeamMember(teamId));
+        allow write: if request.auth != null && isTeamCoach(teamId);
 
         // Attendance sub-collection
         match /attendance/{playerId} {
-          allow read, write: if request.auth != null && get(/databases/$(database)/documents/teams/$(teamId)).data.coachId == request.auth.uid;
+          allow read: if request.auth != null && (isTeamCoach(teamId) || isTeamMember(teamId));
+          // Coach can write anyone's, player can write their own
+          allow write: if request.auth != null && (isTeamCoach(teamId) || (isTeamMember(teamId) && request.auth.uid == playerId));
         }
       }
     }

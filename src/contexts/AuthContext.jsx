@@ -36,18 +36,31 @@ export function AuthProvider({ children }) {
   }, [])
 
   // ── Sign Up ─────────────────────────────────────────────────
-  async function signUp(email, password, displayName) {
+  async function signUp(email, password, displayName, role = 'coach', teamId = null) {
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(cred.user, { displayName })
     const profileData = {
       uid:         cred.user.uid,
       email,
       displayName,
-      role:        'coach',
-      teamId:      null,
+      role,
+      teamId,
       createdAt:   serverTimestamp(),
     }
     await setDoc(doc(db, 'users', cred.user.uid), profileData)
+
+    // If signing up as a player via an invite link, automatically add them to the team roster
+    if (role === 'player' && teamId) {
+      await setDoc(doc(db, 'teams', teamId, 'players', cred.user.uid), {
+        name: displayName,
+        position: 'Unknown',
+        number: '',
+        goals: 0,
+        assists: 0,
+        createdAt: serverTimestamp(),
+      })
+    }
+
     setProfile(profileData)
     return cred
   }

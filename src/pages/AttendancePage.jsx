@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Loader2, ClipboardCheck, Calendar, CheckCircle2, XCircle } from 'lucide-react'
 import { useTeam } from '../contexts/TeamContext'
+import { useAuth } from '../contexts/AuthContext'
 import { format, parseISO } from 'date-fns'
 
 export default function AttendancePage() {
+  const { user, profile } = useAuth()
   const { matches, players, loading, team, getAttendance, setAttendance } = useTeam()
   const [selectedMatchId,  setSelectedMatchId]  = useState(null)
   const [attendance,       setAttendanceMap]     = useState({}) // { playerId: available }
@@ -101,6 +103,10 @@ export default function AttendancePage() {
               {players.map(player => {
                 const status = attendance[player.id]
                 const isLoading = saving === player.id
+                const isCoach = profile?.role === 'coach'
+                const isSelf = player.id === user?.uid
+                const canToggle = isCoach || isSelf
+
                 return (
                   <div key={player.id} className="glass p-4 flex items-center gap-3">
                     {/* Avatar */}
@@ -117,7 +123,7 @@ export default function AttendancePage() {
                     {/* Toggle */}
                     {isLoading ? (
                       <Loader2 size={18} className="animate-spin text-primary-500" />
-                    ) : (
+                    ) : canToggle ? (
                       <div className="flex gap-2">
                         <button
                           id={`attend-yes-${player.id}`}
@@ -141,6 +147,16 @@ export default function AttendancePage() {
                         >
                           ✗ No
                         </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <span className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
+                          status === true ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          status === false ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                          'bg-dark-800 text-dark-500 border-white/5'
+                        }`}>
+                          {status === true ? '✓ Yes' : status === false ? '✗ No' : 'Pending'}
+                        </span>
                       </div>
                     )}
                   </div>

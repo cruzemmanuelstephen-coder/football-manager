@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { User, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
-export default function SignupForm() {
+export default function SignupForm({ isInvite, inviteTeamId }) {
   const { signUp } = useAuth()
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
@@ -19,7 +19,11 @@ export default function SignupForm() {
     if (password.length < 6)  { setError('Password must be at least 6 characters.'); return }
     setLoading(true)
     try {
-      await signUp(email, password, name)
+      if (isInvite && inviteTeamId) {
+        await signUp(email, password, name, 'player', inviteTeamId)
+      } else {
+        await signUp(email, password, name)
+      }
     } catch (err) {
       setError(friendlyError(err.code))
     } finally {
