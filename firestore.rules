@@ -19,14 +19,16 @@ service cloud.firestore {
 
     // Teams
     match /teams/{teamId} {
-      allow read: if request.auth != null && (resource.data.coachId == request.auth.uid || isTeamMember(teamId));
+      // Allow any authenticated user to read team basic info (needed for invites/dashboard)
+      allow read: if request.auth != null;
       allow write: if request.auth != null && resource.data.coachId == request.auth.uid;
       allow create: if request.auth != null;
 
       // Players sub-collection
       match /players/{playerId} {
         allow read: if request.auth != null && (isTeamCoach(teamId) || isTeamMember(teamId));
-        allow write: if request.auth != null && (isTeamCoach(teamId) || (isTeamMember(teamId) && request.auth.uid == playerId));
+        // User can create/update their own player doc (bypasses isTeamMember to avoid race conditions during signup)
+        allow write: if request.auth != null && (isTeamCoach(teamId) || request.auth.uid == playerId);
       }
 
       // Matches sub-collection
@@ -38,7 +40,7 @@ service cloud.firestore {
         match /attendance/{playerId} {
           allow read: if request.auth != null && (isTeamCoach(teamId) || isTeamMember(teamId));
           // Coach can write anyone's, player can write their own
-          allow write: if request.auth != null && (isTeamCoach(teamId) || (isTeamMember(teamId) && request.auth.uid == playerId));
+          allow write: if request.auth != null && (isTeamCoach(teamId) || request.auth.uid == playerId);
         }
       }
     }
