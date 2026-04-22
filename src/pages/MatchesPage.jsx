@@ -31,7 +31,7 @@ export default function MatchesPage() {
           <h2 className="text-2xl font-bold text-white">Matches</h2>
           <p className="text-dark-400 text-sm">{upcoming.length} upcoming</p>
         </div>
-        {profile?.role === 'coach' && (
+        {profile?.role === 'admin' && (
           <button id="add-match-btn" onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
             <PlusCircle size={16} />
             <span className="hidden sm:inline">Add Match</span>
@@ -64,7 +64,7 @@ export default function MatchesPage() {
           <p className="text-dark-400 font-medium">
             {tab === 'upcoming' ? 'No upcoming matches' : 'No past matches'}
           </p>
-          {tab === 'upcoming' && profile?.role === 'coach' && (
+          {tab === 'upcoming' && profile?.role === 'admin' && (
             <button onClick={() => setShowAdd(true)} className="mt-4 btn-primary text-sm">
               Schedule a match
             </button>
@@ -76,7 +76,7 @@ export default function MatchesPage() {
             <MatchCard
               key={match.id}
               match={match}
-              onEdit={profile?.role === 'coach' ? () => setEditMatch(match) : null}
+              onEdit={profile?.role === 'admin' ? () => setEditMatch(match) : null}
             />
           ))}
         </div>

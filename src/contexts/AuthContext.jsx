@@ -36,31 +36,18 @@ export function AuthProvider({ children }) {
   }, [])
 
   // ── Sign Up ─────────────────────────────────────────────────
-  async function signUp(email, password, displayName, role = 'coach', teamId = null) {
+  async function signUp(email, password, displayName) {
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(cred.user, { displayName })
     const profileData = {
       uid:         cred.user.uid,
       email,
       displayName,
-      role,
-      teamId,
+      role:        null,
+      teamId:      null,
       createdAt:   serverTimestamp(),
     }
     await setDoc(doc(db, 'users', cred.user.uid), profileData)
-
-    // If signing up as a player via an invite link, automatically add them to the team roster
-    if (role === 'player' && teamId) {
-      await setDoc(doc(db, 'teams', teamId, 'players', cred.user.uid), {
-        name: displayName,
-        position: 'Unknown',
-        number: '',
-        goals: 0,
-        assists: 0,
-        createdAt: serverTimestamp(),
-      })
-    }
-
     setProfile(profileData)
     return cred
   }
@@ -75,15 +62,36 @@ export function AuthProvider({ children }) {
     await signOut(auth)
   }
 
-  // ── Update teamId on profile ──────────────────────────────────
-  async function updateTeamId(teamId) {
+  // ── Update Profile Role & Team ──────────────────────────────
+  async function updateTeamAndRole(teamId, role) {
     if (!user) return
-    await setDoc(doc(db, 'users', user.uid), { teamId }, { merge: true })
-    setProfile(prev => ({ ...prev, teamId }))
+    await setDoc(doc(db, 'users', user.uid), { teamId, role }, { merge: true })
+    setProfile(prev => ({ ...prev, teamId, role }))
+  }
+
+  // ── Join Existing Team ──────────────────────────────────────
+  async function joinTeam(teamId) {
+    if (!user) return
+    // Check if team exists
+    const teamSnap = await getDoc(doc(db, 'teams', teamId))
+    if (!teamSnap.exists()) throw new Error('Invalid Team Code')
+
+    // Add to roster
+    await setDoc(doc(db, 'teams', teamId, 'players', user.uid), {
+      name: profile?.displayName || user.displayName,
+      position: 'Unknown',
+      number: '',
+      goals: 0,
+      assists: 0,
+      createdAt: serverTimestamp(),
+    })
+
+    // Update profile
+    await updateTeamAndRole(teamId, 'player')
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, login, logout, updateTeamId }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, login, logout, updateTeamAndRole, joinTeam }}>
       {!loading && children}
     </AuthContext.Provider>
   )

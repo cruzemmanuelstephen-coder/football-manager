@@ -103,7 +103,7 @@ export default function AttendancePage() {
               {players.map(player => {
                 const status = attendance[player.id]
                 const isLoading = saving === player.id
-                const isCoach = profile?.role === 'coach'
+                const isCoach = profile?.role === 'admin'
                 const isSelf = player.id === user?.uid
                 const canToggle = isCoach || isSelf
 

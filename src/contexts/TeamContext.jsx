@@ -19,7 +19,7 @@ import { useAuth } from './AuthContext'
 const TeamContext = createContext(null)
 
 export function TeamProvider({ children }) {
-  const { user, profile, updateTeamId } = useAuth()
+  const { user, profile, updateTeamAndRole } = useAuth()
 
   const [team,     setTeam]     = useState(null)
   const [players,  setPlayers]  = useState([])
@@ -68,11 +68,11 @@ export function TeamProvider({ children }) {
   async function createTeam(name) {
     const ref = await addDoc(collection(db, 'teams'), {
       name,
-      coachId:   user.uid,
-      coachName: user.displayName,
+      adminId:   user.uid,
+      adminName: user.displayName,
       createdAt: serverTimestamp(),
     })
-    await updateTeamId(ref.id)
+    await updateTeamAndRole(ref.id, 'admin')
     return ref.id
   }
 

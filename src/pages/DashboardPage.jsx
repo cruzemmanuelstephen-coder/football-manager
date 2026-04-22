@@ -13,12 +13,14 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import { useTeam } from '../contexts/TeamContext'
 import { format, isPast, parseISO, differenceInDays } from 'date-fns'
+import JoinTeamModal from '../components/Dashboard/JoinTeamModal'
 import CreateTeamModal from '../components/Dashboard/CreateTeamModal'
 
 export default function DashboardPage() {
   const { user, profile } = useAuth()
   const { team, players, matches, loading } = useTeam()
   const [showCreate, setShowCreate] = useState(false)
+  const [showJoin,   setShowJoin]   = useState(false)
 
   if (loading) {
     return (
@@ -28,41 +30,50 @@ export default function DashboardPage() {
     )
   }
 
-  // If no team yet, show onboarding
+  // If no team yet, show split onboarding
   if (!team) {
-    if (profile?.role === 'player') {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-2xl shadow-primary-500/30 mb-6">
-            <Trophy size={40} className="text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome, {user?.displayName}!</h2>
-          <p className="text-dark-400 max-w-xs">
-            We couldn't find your team. If you just signed up, your team data might be loading. Otherwise, ask your coach for an invite link.
-          </p>
-        </div>
-      )
-    }
-
     return (
       <>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-fade-in">
+        <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 animate-fade-in">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-2xl shadow-primary-500/30 mb-6">
             <Trophy size={40} className="text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome, {user?.displayName}!</h2>
-          <p className="text-dark-400 mb-8 max-w-xs">
-            You haven't created your team yet. Let's get started!
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 text-center">Welcome, {user?.displayName}!</h2>
+          <p className="text-dark-400 mb-10 text-center max-w-sm">
+            You don't belong to a team yet. Do you want to create a new team or join an existing one?
           </p>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="btn-primary flex items-center gap-2 text-base px-6 py-3"
-          >
-            <PlusCircle size={18} />
-            Create My Team
-          </button>
+
+          <div className="grid sm:grid-cols-2 gap-4 w-full max-w-lg">
+            <button
+              onClick={() => setShowJoin(true)}
+              className="glass-hover p-6 rounded-2xl flex flex-col items-center text-center gap-3 border-primary-500/30 hover:border-primary-500/50 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users size={24} className="text-primary-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Join a Team</h3>
+                <p className="text-dark-400 text-sm mt-1">I have a team code from my admin</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setShowCreate(true)}
+              className="glass-hover p-6 rounded-2xl flex flex-col items-center text-center gap-3 border-white/5 hover:border-white/20 transition-all group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-dark-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <PlusCircle size={24} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Create a Team</h3>
+                <p className="text-dark-400 text-sm mt-1">I am the admin / manager</p>
+              </div>
+            </button>
+          </div>
         </div>
+
         {showCreate && <CreateTeamModal onClose={() => setShowCreate(false)} />}
+        {showJoin   && <JoinTeamModal   onClose={() => setShowJoin(false)} />}
       </>
     )
   }

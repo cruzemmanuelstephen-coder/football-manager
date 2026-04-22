@@ -56,18 +56,17 @@ export default function Sidebar() {
       </nav>
 
       {/* Invite Button */}
-      {profile?.role === 'coach' && team && (
+      {profile?.role === 'admin' && team && (
         <div className="px-4 py-2">
           <button
             onClick={() => {
-              const url = `${window.location.origin}/signup?invite=${team.id}`;
-              navigator.clipboard.writeText(url);
-              alert('Invite link copied to clipboard!');
+              navigator.clipboard.writeText(team.id);
+              alert('Team Code copied to clipboard!');
             }}
             className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-primary-500/10 text-primary-400 hover:bg-primary-500/20 font-medium text-sm transition-colors border border-primary-500/20"
           >
             <Users size={16} />
-            Invite Players
+            Copy Team Code
           </button>
         </div>
       )}
@@ -76,11 +75,11 @@ export default function Sidebar() {
       <div className="px-3 py-4 border-t border-white/5">
         <div className="glass p-3 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-sm shrink-0">
-            {user?.displayName?.[0]?.toUpperCase() || 'C'}
+            {user?.displayName?.[0]?.toUpperCase() || 'A'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">{user?.displayName || 'Coach'}</p>
-            <p className="text-dark-400 text-xs truncate capitalize">{profile?.role || 'Coach'}</p>
+            <p className="text-white text-sm font-medium truncate">{user?.displayName || 'Admin'}</p>
+            <p className="text-dark-400 text-xs truncate capitalize">{profile?.role || 'Admin'}</p>
           </div>
           <button
             onClick={logout}

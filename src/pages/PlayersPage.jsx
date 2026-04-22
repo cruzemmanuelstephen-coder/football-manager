@@ -15,6 +15,8 @@ export default function PlayersPage() {
   if (!team) return <NoTeamMessage />
   if (loading) return <LoadingSpinner />
 
+  const canEdit = profile?.role === 'admin'
+
   const filtered = players.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.position?.toLowerCase().includes(search.toLowerCase())
@@ -28,7 +30,7 @@ export default function PlayersPage() {
           <h2 className="text-2xl font-bold text-white">Players</h2>
           <p className="text-dark-400 text-sm">{players.length} player{players.length !== 1 ? 's' : ''} in squad</p>
         </div>
-        {profile?.role === 'coach' && (
+        {canEdit && (
           <button
             id="add-player-btn"
             onClick={() => setShowAdd(true)}
