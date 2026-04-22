@@ -90,8 +90,31 @@ export function AuthProvider({ children }) {
     await updateTeamAndRole(teamId, 'player')
   }
 
+  // ── Update Profile Name ─────────────────────────────────────
+  async function updateProfileName(newName) {
+    if (!user) return
+
+    // 1. Update core Firebase Auth
+    await updateProfile(user, { displayName: newName })
+
+    // 2. Update users collection
+    await setDoc(doc(db, 'users', user.uid), { displayName: newName }, { merge: true })
+
+    // 3. Update team associations if they belong to one
+    if (profile?.teamId) {
+      if (profile.role === 'admin') {
+        await setDoc(doc(db, 'teams', profile.teamId), { adminName: newName }, { merge: true })
+      } else if (profile.role === 'player') {
+        await setDoc(doc(db, 'teams', profile.teamId, 'players', user.uid), { name: newName }, { merge: true })
+      }
+    }
+
+    // 4. Update local profile state
+    setProfile(prev => prev ? { ...prev, displayName: newName } : null)
+  }
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, login, logout, updateTeamAndRole, joinTeam }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, login, logout, updateTeamAndRole, joinTeam, updateProfileName }}>
       {!loading && children}
     </AuthContext.Provider>
   )

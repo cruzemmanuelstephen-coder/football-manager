@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTeam } from '../../contexts/TeamContext'
-import { Trophy, LogOut } from 'lucide-react'
+import { Trophy, LogOut, Settings } from 'lucide-react'
+import EditProfileModal from '../Auth/EditProfileModal'
 
 const pageTitles = {
   '/dashboard':  'Dashboard',
@@ -13,8 +15,9 @@ const pageTitles = {
 
 export default function TopBar() {
   const { pathname } = useLocation()
-  const { user, logout } = useAuth()
+  const { user, profile, logout } = useAuth()
   const { team } = useTeam()
+  const [showEditProfile, setShowEditProfile] = useState(false)
 
   return (
     <header className="flex items-center justify-between px-4 py-3 md:px-6 border-b border-white/5 bg-dark-900/80 backdrop-blur-sm shrink-0">
@@ -37,8 +40,14 @@ export default function TopBar() {
       {/* Right: avatar + logout (mobile) */}
       <div className="flex items-center gap-2 lg:hidden">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-sm">
-          {user?.displayName?.[0]?.toUpperCase() || 'C'}
+          {user?.displayName?.[0]?.toUpperCase() || 'A'}
         </div>
+        <button
+          onClick={() => setShowEditProfile(true)}
+          className="text-dark-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
+        >
+          <Settings size={16} />
+        </button>
         <button
           onClick={logout}
           className="text-dark-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
@@ -46,6 +55,10 @@ export default function TopBar() {
           <LogOut size={16} />
         </button>
       </div>
+
+      {showEditProfile && (
+        <EditProfileModal onClose={() => setShowEditProfile(false)} />
+      )}
     </header>
   )
 }

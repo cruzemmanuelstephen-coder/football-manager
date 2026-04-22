@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -6,9 +7,11 @@ import {
   ClipboardCheck,
   BarChart3,
   Trophy,
+  Settings,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTeam } from '../../contexts/TeamContext'
+import EditProfileModal from '../Auth/EditProfileModal'
 
 const navItems = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
@@ -21,6 +24,7 @@ const navItems = [
 export default function Sidebar() {
   const { user, profile, logout } = useAuth()
   const { team } = useTeam()
+  const [showEditProfile, setShowEditProfile] = useState(false)
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-dark-950 border-r border-white/5 shrink-0">
@@ -82,6 +86,13 @@ export default function Sidebar() {
             <p className="text-dark-400 text-xs truncate capitalize">{profile?.role || 'Admin'}</p>
           </div>
           <button
+            onClick={() => setShowEditProfile(true)}
+            title="Edit Profile"
+            className="text-dark-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+          >
+            <Settings size={16} />
+          </button>
+          <button
             onClick={logout}
             title="Sign out"
             className="text-dark-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
@@ -92,6 +103,10 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
+
+      {showEditProfile && (
+        <EditProfileModal onClose={() => setShowEditProfile(false)} />
+      )}
     </aside>
   )
 }
