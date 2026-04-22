@@ -40,18 +40,24 @@ export function TeamProvider({ children }) {
     const teamRef  = doc(db, 'teams', teamId)
     const unsubTeam = onSnapshot(teamRef, snap => {
       setTeam(snap.exists() ? { id: snap.id, ...snap.data() } : null)
+    }, err => {
+      console.error('Error fetching team:', err)
+      setLoading(false)
     })
 
     // Players sub-collection
     const playersQ = query(collection(db, 'teams', teamId, 'players'), orderBy('name'))
     const unsubPlayers = onSnapshot(playersQ, snap => {
       setPlayers(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    })
+    }, err => console.error('Error fetching players:', err))
 
     // Matches sub-collection
     const matchesQ = query(collection(db, 'teams', teamId, 'matches'), orderBy('date', 'desc'))
     const unsubMatches = onSnapshot(matchesQ, snap => {
       setMatches(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      setLoading(false)
+    }, err => {
+      console.error('Error fetching matches:', err)
       setLoading(false)
     })
 
