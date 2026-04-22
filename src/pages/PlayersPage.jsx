@@ -62,7 +62,7 @@ export default function PlayersPage() {
           <p className="text-dark-400 font-medium">
             {search ? 'No players match your search' : 'No players yet'}
           </p>
-          {!search && profile?.role === 'coach' && (
+          {!search && profile?.role === 'admin' && (
             <button onClick={() => setShowAdd(true)} className="mt-4 btn-primary text-sm">
               Add your first player
             </button>
@@ -74,7 +74,7 @@ export default function PlayersPage() {
             <PlayerCard
               key={player.id}
               player={player}
-              onEdit={profile?.role === 'coach' ? () => setEditPlayer(player) : null}
+              onEdit={profile?.role === 'admin' ? () => setEditPlayer(player) : null}
             />
           ))}
         </div>
